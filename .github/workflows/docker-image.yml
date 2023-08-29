@@ -14,12 +14,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build ./curl --tag grafana_api_data:$(date +%s)
-    - name: Build the Docker image
-      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-requester --tag mythical-beasts-requester:$(date +%s)
-    - name: Build the Docker image
-      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-server --tag mythical-server:$(date +%s)
-    - name: Build the Docker image
-      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-recorder --tag mythical-recorder:$(date +%s)
-
+    - name: Set buildtime
+      run: echo "builddate=$(date +%s)" >> "$GITHUB_ENV"
+    - name: Build the Docker image grafana_api_data
+      run: docker build ./curl --tag flx5/intro-to-mltp:grafana_api_data-${builddate}
+    - name: Build the Docker image mythical-beasts-requester
+      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-requester --tag flx5/intro-to-mltp:mythical-beasts-requester-${builddate}
+    - name: Build the Docker image mythical-beasts-server
+      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-server --tag flx5/intro-to-mltp:mythical-server-${builddate}
+    - name: Build the Docker image mythical-beasts-recorder
+      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-recorder --tag flx5/intro-to-mltp:mythical-recorder-${builddate}
+    - name: Login
+      run: echo $DOCKER_TOKEN | docker login ghcr.io -u $DOCKER_USER --password-stdin
+      env: # Or as an environment variable
+        DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    - name: Publish  grafana_api_data
+      run: docker push -a flx5/intro-to-mltp
