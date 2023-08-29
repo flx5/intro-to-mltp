@@ -25,7 +25,7 @@ jobs:
     - name: Build the Docker image mythical-beasts-recorder
       run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-recorder --tag flx5/intro-to-mltp:mythical-recorder-${builddate}
     - name: Login
-      run: echo $DOCKER_TOKEN | docker login ghcr.io -u $DOCKER_USER --password-stdin
+      run: echo $DOCKER_TOKEN | docker login -u $DOCKER_USER --password-stdin
       env: # Or as an environment variable
         DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
