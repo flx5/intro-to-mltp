@@ -7,27 +7,33 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  build:
-
+  grafana_api_data:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
-    - name: Set buildtime
-      run: echo "builddate=$(date +%s)" >> "$GITHUB_ENV"
-    - name: Build the Docker image grafana_api_data
-      run: docker build ./curl --tag flx5/intro-to-mltp:grafana_api_data-${builddate}
-    - name: Build the Docker image mythical-beasts-requester
-      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-requester --tag flx5/intro-to-mltp:mythical-beasts-requester-${builddate}
-    - name: Build the Docker image mythical-beasts-server
-      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-server --tag flx5/intro-to-mltp:mythical-server-${builddate}
-    - name: Build the Docker image mythical-beasts-recorder
-      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-recorder --tag flx5/intro-to-mltp:mythical-recorder-${builddate}
+    - name: Build
+      run: docker build ./curl --tag flx5/intro-to-mltp:grafana_api_data-$(date +%s)
     - name: Login
       run: echo $DOCKER_TOKEN | docker login -u $DOCKER_USER --password-stdin
       env: # Or as an environment variable
         DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
-    - name: Publish  grafana_api_data
+    - name: Publish
+      run: docker push -a flx5/intro-to-mltp
+
+  mythical:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [mythical-beasts-requester, mythical-beasts-server, mythical-beasts-recorder]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=${{ matrix.service }} --tag flx5/intro-to-mltp:${{ matrix.service }}-$(date +%s)
+    - name: Login
+      run: echo $DOCKER_TOKEN | docker login -u $DOCKER_USER --password-stdin
+      env: # Or as an environment variable
+        DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    - name: Publish
       run: docker push -a flx5/intro-to-mltp
