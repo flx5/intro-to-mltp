@@ -17,4 +17,4 @@ jobs:
     - name: Build the Docker image
       run: docker build ./curl --tag grafana_api_data:$(date +%s)
     - name: Build the Docker image
-      run: docker build ./source -f ./source/docker/Dockerfile --tag grafana_api_data:$(date +%s)
+      run: docker build ./source -f ./source/docker/Dockerfile --build-arg SERVICE=mythical-beasts-requester --tag mythical-beasts-requester:$(date +%s)
