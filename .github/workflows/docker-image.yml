@@ -16,3 +16,5 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build ./curl --tag grafana_api_data:$(date +%s)
+    - name: Build the Docker image
+      run: docker build ./source -f ./source/docker/Dockerfile --tag grafana_api_data:$(date +%s)
